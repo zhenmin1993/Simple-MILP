@@ -1,0 +1,48 @@
+%figure(1)
+%figure(2)
+%figure(3)
+House_num=5;
+for i = 1:House_num
+    figure(1)
+    s1(i) = subplot(1,House_num,i);
+    %plot(t,value(discharge_power(i,:))*1000,'--gs','MarkerSize',5,'MarkerEdgeColor','b')
+    bar(t,-value(discharge_power(i,:))*1000,'stacked','b')
+    hold on
+    bar(t,value(charge_sequence(i,:))*P_batt_charge_pu*1000,'stacked','y')
+    legend('discharge[kWh]','charge[kWh]')
+    
+    %ylabel('dischargehouse[kWh]')
+    str = ['power of battery house ',num2str(i), ' [kWh]'];
+    ylabel(s1(i),str)
+    xlabel('time[h]')
+    %grid on
+    axis([0 23 -10 8])
+    %hold on
+    %figure(1)
+    %subplot(2,House_num,i+House_num)
+    %plot(t,value(charge_sequence(i,:))*P_batt_charge_pu*1000,'--gs','MarkerSize',5,'MarkerEdgeColor','b')
+    %axis([0 23 0 5])
+    %ylabel('chargehouse[kWh]')
+    %xlabel('time[h]')
+    %grid on
+    
+    figure(2)
+    s2(i) = subplot(1,House_num,i);
+    %plot(t,value(discharge_power(i,:))*1000,'--gs','MarkerSize',5,'MarkerEdgeColor','b')
+    plot(t,value(SoC(i,:)))
+    str = ['SoC of battery house ',num2str(i), ' [kWh]'];
+    ylabel(s2(i),str)
+    xlabel('time[h]')
+    grid on
+    axis([0 23 0 max(value(E_batt_max))+3]);
+    
+end
+
+figure(3)
+plot(t,value(P_transformer_max)*1000)
+ylabel('Transformer Power[kWh]')
+xlabel('time[h]')
+axis([0 23 0 max(value(P_transformer_max))*1000+10])
+grid on
+
+figure(4)

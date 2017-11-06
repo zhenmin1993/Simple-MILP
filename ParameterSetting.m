@@ -1,0 +1,21 @@
+%This file is to set parameters
+%Please run this file first
+%This simple LP has 10 households
+%Base value: S = 1 MVA, U = 0.4kV
+%We use a DC approximation
+clear
+clc
+P_max_onehouse_pu = 0.01;
+House_num = 5;
+P_batt_charge_pu = 5/1000;
+P_batt_discharge_pu = 10/1000;
+E_batt_max_kWh = 50;
+Price_Batt_per_kWh = 150; %$
+Price_transformer_per_kW  =150; %$
+Planning_Period_h = 24;
+t = 0:1:23;
+Load_mode1_curve = P_max_onehouse_pu * [0.1 0.08 0.05 0.05 0.05 0.05 0.07 0.3 0.7 0.5 0.2 0.3 0.5 0.6 0.3 0.1 0.1 0.3 0.9 0.95 0.5 0.2 0.1 0.1];
+Load_mode2_curve = P_max_onehouse_pu * [0.1 0.07 0.04 0.04 0.04 0.03 0.07 0.25 0.6 0.46 0.2 0.3 0.5 0.6 0.3 0.1 0.1 0.3 0.8 0.85 0.6 0.3 0.1 0.1];
+Load_mode3_curve = P_max_onehouse_pu * [0.1 0.08 0.08 0.04 0.04 0.05 0.07 0.07 0.25 0.75 0.5 0.3 0.2 0.5 0.6 0.3 0.1 0.1 0.3 0.8 0.85 0.6 0.3 0.1];
+Load_mode4_curve = P_max_onehouse_pu * [0.2 0.1 0.1 0.05 0.05 0.05 0.05 0.05 0.28 0.6 0.4 0.2 0.1 0.1 0.1 0.1 0.1 0.1 0.5 0.9 0.95 0.7 0.3 0.1];
+Load_mode5_curve = P_max_onehouse_pu * [0.1 0.08 0.05 0.04 0.04 0.05 0.05 0.05 0.2 0.5 0.3 0.2 0.1 0.1 0.1 0.1 0.1 0.3 0.5 0.8 0.85 0.6 0.2 0.1];

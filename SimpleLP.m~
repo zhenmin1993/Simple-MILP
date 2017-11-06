@@ -1,0 +1,75 @@
+
+P_house1_curve = Load_mode1_curve;
+P_house2_curve = Load_mode2_curve;
+P_house3_curve = Load_mode3_curve;
+P_house4_curve = Load_mode4_curve;
+P_house5_curve = Load_mode5_curve;
+
+
+Load_matrix = [P_house1_curve; P_house2_curve; P_house3_curve; P_house4_curve; P_house5_curve];
+
+%Power supply in 24 hours in a sequence
+Power_supply = [1 1 0 1 1 1 0 1 1 1 0 1 0 1 0 0 1 1 0 1 0 0 1 0];
+Power_outage = 1-Power_supply;
+
+%The power through transformer in 24 hours
+P_transformer_max = sdpvar(1,24);
+
+%The decision variable
+charge_sequence = binvar(House_num,24);
+discharge_power = sdpvar(House_num,24);
+
+%State of charge
+SoC = sdpvar(House_num,24);
+SoC_init = sdpvar(1,House_num);
+
+%The battery capacity required in each house
+E_batt_max = sdpvar(1,House_num);
+
+
+%define the loss function
+f= sum(E_batt_max)*Price_Batt_per_kWh +  max(P_transformer_max)*1000*Price_transformer_per_kW;
+
+%Define constraints
+C= [];
+for i=1:House_num
+    %Battery initial capacity constraints
+    C = [C ; SoC_init(i) >= 0];
+    C = [C ; SoC_init(i) - E_batt_max(i) <=0];
+    %Set initial SoC
+    C = [C ; SoC(i,1) - SoC_init(i) == 0];
+    for j =1:24
+        if j>1
+            %charge-discharge = SoC change
+            C = [C; SoC(i,j) - SoC(i,j-1) - charge_sequence(i,j)*P_batt_charge_pu*1000 + discharge_power(i,j)*1000 == 0];
+        end
+        %SoC constraints
+        C = [C ; SoC(i,j)>=0];
+        C = [C ; SoC(i,j) - E_batt_max(i) <= 0];
+        %discharge power constraints
+        C = [C ; discharge_power(i,j) >=0];
+        C = [C ; discharge_power(i,j) <=P_batt_discharge_pu];
+        C = [C ; discharge_power(i,j) * Power_supply(j) == 0];
+        C = [C ; charge_sequence(i,j) * Power_outage(j) == 0];
+        %C = [C ; charge_sequence(i,j)*Power_supply(j) +  sum(Load_matrix(:,j))*Power_supply(j) <=240 ];
+        C = [C ; discharge_power(i,j) - Load_matrix(i,j)*Power_outage(j)==0];
+    end 
+end
+
+for j = 1:24
+    C = [C ; sum(charge_sequence(:,j))*P_batt_charge_pu*Power_supply(j) + sum(Load_matrix(:,j))*Power_supply(j) <= P_transformer_max(j) ];
+end
+
+options = sdpsettings();
+diagn = solvesdp(C, f, options);
+xopt(1) = int(charge_sequence);
+xopt(2) = int(discharge_sequence);
+
+Trans_power = value(P_transformer_max);
+
+
+
+
+
+
+%plot(t,Power_supply)
